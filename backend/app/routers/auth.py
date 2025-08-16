@@ -20,13 +20,13 @@ security = HTTPBearer()
 # Cliente Supabase
 supabase: Client = create_client(settings.supabase_url, settings.supabase_key)
 
-router = APIRouter(prefix="/auth", tags=["authentication"])
+router = APIRouter(tags=["authentication"])
 
 @router.post("/register", response_model=dict)
 async def register(user_data: UserCreate):
     """Registrar un nuevo usuario"""
     try:
-        supabase = get_supabase_client()
+        # Usar el cliente supabase ya configurado
         
         # Verificar si el usuario ya existe
         existing_user = supabase.table("users").select("*").eq("email", user_data.email).execute()
@@ -73,7 +73,7 @@ async def register(user_data: UserCreate):
 async def login(user_credentials: UserLogin):
     """Iniciar sesión"""
     try:
-        supabase = get_supabase_client()
+        # Usar el cliente supabase ya configurado
         
         # Autenticar con Supabase
         auth_response = supabase.auth.sign_in_with_password({
@@ -110,7 +110,7 @@ async def login(user_credentials: UserLogin):
 async def get_current_user(user_id: str = Depends(verify_token)):
     """Obtener información del usuario actual"""
     try:
-        supabase = get_supabase_client()
+        # Usar el cliente supabase ya configurado
         
         result = supabase.table("users").select("*").eq("id", user_id).execute()
         

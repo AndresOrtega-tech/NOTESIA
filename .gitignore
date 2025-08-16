@@ -196,6 +196,7 @@ logs/
 .env.production
 .env.staging
 tests_conections.py
+test_api_endpoints.py
 
 # Node modules (if using any frontend tools)
 node_modules/

@@ -14,7 +14,7 @@ security = HTTPBearer()
 # Cliente Supabase
 supabase: Client = create_client(settings.supabase_url, settings.supabase_key)
 
-router = APIRouter(prefix="/notes", tags=["notes"])
+router = APIRouter(tags=["notes"])
 
 # Función para obtener el usuario actual
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:

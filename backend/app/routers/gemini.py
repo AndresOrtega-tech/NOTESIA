@@ -18,7 +18,7 @@ supabase: Client = create_client(settings.supabase_url, settings.supabase_key)
 # Configurar Gemini AI
 genai.configure(api_key=settings.gemini_api_key)
 
-router = APIRouter(prefix="/gemini", tags=["ai"])
+router = APIRouter(tags=["ai"])
 
 # Función para obtener el usuario actual
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
