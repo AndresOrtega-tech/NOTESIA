@@ -8,6 +8,7 @@ from supabase import create_client, Client
 from app.config import settings
 from app.models.note import Note, NoteWithAI
 from app.utils.auth import get_user_id_from_token
+from app.routers.auth import get_current_user_dependency
 
 # Configuración
 security = HTTPBearer()
@@ -20,19 +21,8 @@ genai.configure(api_key=settings.gemini_api_key)
 
 router = APIRouter(tags=["ai"])
 
-# Función para obtener el usuario actual
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
-    """
-    Obtiene el ID del usuario actual desde el token JWT.
-    """
-    user_id = get_user_id_from_token(credentials.credentials)
-    if not user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido o expirado",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return user_id
+# Usar la dependencia de autenticación centralizada
+get_current_user = get_current_user_dependency
 
 # Modelos para las peticiones de IA
 class AIPrompt(BaseModel):
@@ -54,7 +44,7 @@ class GenerateFromPrompt(BaseModel):
 async def chat_with_ai(ai_prompt: AIPrompt, user_id: str = Depends(get_current_user)):
     """Chat general con IA"""
     try:
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         # Construir el prompt con contexto si se proporciona
         full_prompt = ai_prompt.prompt
@@ -93,7 +83,7 @@ async def summarize_note(request: SummarizeRequest, user_id: str = Depends(get_c
         note = Note(**note_data)
         
         # Generar resumen con IA
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"""Por favor, genera un resumen conciso y útil del siguiente contenido:
         
         Título: {note.title}
@@ -149,7 +139,7 @@ async def enhance_note(request: EnhanceRequest, user_id: str = Depends(get_curre
         
         prompt_base = enhancement_prompts.get(request.enhancement_type, enhancement_prompts["improve"])
         
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"""{prompt_base}
         
         Título: {note.title}
@@ -189,7 +179,7 @@ async def enhance_note(request: EnhanceRequest, user_id: str = Depends(get_curre
 async def generate_note_from_prompt(request: GenerateFromPrompt, user_id: str = Depends(get_current_user)):
     """Generar contenido de nota desde un prompt"""
     try:
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         prompt = f"""Genera contenido para una nota basándote en la siguiente solicitud:
         
@@ -246,7 +236,7 @@ async def analyze_user_notes(user_id: str = Depends(get_current_user)):
             for note in result.data[:10]  # Limitar a 10 notas para evitar tokens excesivos
         ])
         
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"""Analiza las siguientes notas de un usuario y proporciona insights útiles:
         
         {notes_summary}

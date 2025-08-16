@@ -7,6 +7,7 @@ from supabase import create_client, Client
 from app.config import settings
 from app.models.note import NoteCreate, NoteUpdate, Note, NoteWithAI, NoteStatus
 from app.utils.auth import verify_token, get_user_id_from_token
+from app.routers.auth import get_current_user_dependency
 
 # Configuración
 security = HTTPBearer()
@@ -16,19 +17,8 @@ supabase: Client = create_client(settings.supabase_url, settings.supabase_key)
 
 router = APIRouter(tags=["notes"])
 
-# Función para obtener el usuario actual
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
-    """
-    Obtiene el ID del usuario actual desde el token JWT.
-    """
-    user_id = get_user_id_from_token(credentials.credentials)
-    if not user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido o expirado",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return user_id
+# Usar la dependencia de autenticación centralizada
+get_current_user = get_current_user_dependency
 
 @router.post("/", response_model=Note)
 async def create_note(note_data: NoteCreate, user_id: str = Depends(get_current_user)):

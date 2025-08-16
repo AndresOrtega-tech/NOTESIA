@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from supabase import create_client, Client
 from app.config import settings
+from app.database import get_supabase_admin_client
 from app.models.user import UserCreate, UserResponse, UserLogin, Token, User
 from app.utils.auth import (
     verify_password,
@@ -43,15 +44,19 @@ async def register(user_data: UserCreate):
         })
         
         if auth_response.user:
-            # Insertar datos adicionales en la tabla users
+            # Insertar datos adicionales en la tabla users usando cliente admin
             user_record = {
                 "id": auth_response.user.id,
                 "email": user_data.email,
                 "full_name": user_data.full_name,
+                "username": user_data.username,
+                "password_hash": get_password_hash(user_data.password),
                 "is_active": True
             }
             
-            result = supabase.table("users").insert(user_record).execute()
+            # Usar cliente admin para bypasear RLS
+            supabase_admin = get_supabase_admin_client()
+            result = supabase_admin.table("users").insert(user_record).execute()
             
             return {
                 "message": "Usuario registrado exitosamente",
@@ -106,8 +111,22 @@ async def login(user_credentials: UserLogin):
             detail="Credenciales incorrectas"
         )
 
+# Función para obtener el usuario actual
+async def get_current_user_dependency(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    """
+    Obtiene el ID del usuario actual desde el token JWT.
+    """
+    user_id = get_user_id_from_token(credentials.credentials)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user_id
+
 @router.get("/me", response_model=User)
-async def get_current_user(user_id: str = Depends(verify_token)):
+async def get_current_user(user_id: str = Depends(get_current_user_dependency)):
     """Obtener información del usuario actual"""
     try:
         # Usar el cliente supabase ya configurado
