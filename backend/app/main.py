@@ -22,7 +22,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",  # React dev server
         "http://localhost:5173",  # Vite dev server
-        "https://tu-dominio.vercel.app",  # Tu dominio de producción
+        "https://notesia.vercel.app",  # Dominio de producción
+        "*"  # Permitir todos los orígenes temporalmente para debugging
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
