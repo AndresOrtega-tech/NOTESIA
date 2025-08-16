@@ -38,10 +38,23 @@ async def register(user_data: UserCreate):
             )
         
         # Crear nuevo usuario en Supabase Auth
-        auth_response = supabase.auth.sign_up({
-            "email": user_data.email,
-            "password": user_data.password
-        })
+        try:
+            auth_response = supabase.auth.sign_up({
+                "email": user_data.email,
+                "password": user_data.password
+            })
+        except Exception as auth_error:
+            # Si el error es porque el usuario ya existe en Auth
+            if "User already registered" in str(auth_error) or "already been registered" in str(auth_error):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="El usuario ya existe"
+                )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Error al crear usuario: {str(auth_error)}"
+                )
         
         if auth_response.user:
             # Insertar datos adicionales en la tabla users usando cliente admin
