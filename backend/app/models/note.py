@@ -36,3 +36,7 @@ class Note (NoteInDB):
 class NoteWithAI (Note):
     ai_suggestion: Optional[str] = None
     ai_summary: Optional[str] = None
+    ai_enhanced_content: Optional[str] = None
+    ai_suggestions: Optional[List[str]] = []
+    generated_content: Optional[str] = None
+    analysis: Optional[str] = None
