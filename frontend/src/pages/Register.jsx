@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.jsx';
+import { WarningIcon } from '../components/icons';
+import './Register.css';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -70,7 +72,7 @@ const Register = () => {
       let errorMessage = result.error || 'Error al registrar usuario. Inténtalo de nuevo.';
       
       if (result.error && result.error.includes('El email ya está registrado')) {
-        errorMessage = '⚠️ Este correo electrónico ya está registrado. Si ya tienes una cuenta, puedes iniciar sesión.';
+        errorMessage = 'Este correo electrónico ya está registrado. Si ya tienes una cuenta, puedes iniciar sesión.';
       }
       
       setError(errorMessage);
@@ -78,44 +80,16 @@ const Register = () => {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#f5f5f5',
-      padding: '1rem'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-        width: '100%',
-        maxWidth: '450px'
-      }}>
-        <h2 style={{
-          textAlign: 'center',
-          marginBottom: '2rem',
-          color: '#333'
-        }}>
+    <div className="register-container">
+      <div className="register-card">
+        <h2 className="register-title">
           Crear Cuenta
         </h2>
 
-        <form onSubmit={handleSubmit}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '1rem',
-            marginBottom: '1rem'
-          }}>
-            <div>
-              <label style={{
-                display: 'block',
-                marginBottom: '0.5rem',
-                fontWeight: 'bold',
-                color: '#555'
-              }}>
+        <form className="register-form" onSubmit={handleSubmit}>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">
                 Nombre:
               </label>
               <input
@@ -124,24 +98,12 @@ const Register = () => {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  fontSize: '1rem',
-                  boxSizing: 'border-box'
-                }}
+                className="form-input"
                 placeholder="Tu nombre"
               />
             </div>
-            <div>
-              <label style={{
-                display: 'block',
-                marginBottom: '0.5rem',
-                fontWeight: 'bold',
-                color: '#555'
-              }}>
+            <div className="form-group">
+              <label className="form-label">
                 Apellido:
               </label>
               <input
@@ -150,26 +112,14 @@ const Register = () => {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  fontSize: '1rem',
-                  boxSizing: 'border-box'
-                }}
+                className="form-input"
                 placeholder="Tu apellido"
               />
             </div>
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: 'bold',
-              color: '#555'
-            }}>
+          <div className="form-group">
+            <label className="form-label">
               Email:
             </label>
             <input
@@ -178,25 +128,13 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
+              className="form-input"
               placeholder="tu@email.com"
             />
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: 'bold',
-              color: '#555'
-            }}>
+          <div className="form-group">
+            <label className="form-label">
               Contraseña:
             </label>
             <input
@@ -205,25 +143,13 @@ const Register = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
+              className="form-input"
               placeholder="Mínimo 6 caracteres"
             />
           </div>
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: 'bold',
-              color: '#555'
-            }}>
+          <div className="form-group">
+            <label className="form-label">
               Confirmar Contraseña:
             </label>
             <input
@@ -232,36 +158,19 @@ const Register = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
+              className="form-input"
               placeholder="Repite tu contraseña"
             />
           </div>
 
           {error && (
-            <div style={{
-              backgroundColor: '#fee',
-              color: '#c33',
-              padding: '0.75rem',
-              borderRadius: '4px',
-              marginBottom: '1rem',
-              textAlign: 'center'
-            }}>
+            <div className="error-message">
+              <WarningIcon size={16} className="inline-icon" />
               {error.includes('ya está registrado') ? (
                 <div>
                   {error}
                   <br />
-                  <Link to="/login" style={{
-                    color: '#007bff',
-                    textDecoration: 'underline',
-                    fontWeight: 'bold'
-                  }}>
+                  <Link to="/login" className="error-link">
                     Ir al Login
                   </Link>
                 </div>
@@ -272,14 +181,7 @@ const Register = () => {
           )}
 
           {success && (
-            <div style={{
-              backgroundColor: '#efe',
-              color: '#3c3',
-              padding: '0.75rem',
-              borderRadius: '4px',
-              marginBottom: '1rem',
-              textAlign: 'center'
-            }}>
+            <div className="success-message">
               {success}
             </div>
           )}
@@ -287,32 +189,16 @@ const Register = () => {
           <button
             type="submit"
             disabled={isLoading}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              backgroundColor: isLoading ? '#ccc' : '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '1rem',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              transition: 'background-color 0.3s'
-            }}
+            className="register-button"
           >
             {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
           </button>
         </form>
 
-        <div style={{
-          textAlign: 'center',
-          marginTop: '1.5rem'
-        }}>
-          <p style={{ color: '#666' }}>
+        <div className="login-link-container">
+          <p className="login-text">
             ¿Ya tienes cuenta?{' '}
-            <Link to="/login" style={{
-              color: '#007bff',
-              textDecoration: 'none'
-            }}>
+            <Link to="/login" className="login-link">
               Inicia sesión aquí
             </Link>
           </p>

@@ -1,0 +1,178 @@
+/* Home Page Styles */
+.home-container {
+  min-height: 100vh;
+  background: var(--primary-green);
+  position: relative;
+}
+
+.logout-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--tertiary-green);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.logout-button:hover {
+  background: var(--accent-green);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.home-main {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  padding-top: 4rem;
+}
+
+.home-title {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.home-description {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-medium);
+  border-color: var(--secondary-green);
+}
+
+.feature-title {
+  font-size: 1.2rem;
+  color: var(--secondary-green);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.feature-description {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+/* Responsive Design */
+/* Tablet styles */
+@media (max-width: 1024px) {
+  .home-main {
+    padding: 1.5rem;
+    max-width: 700px;
+  }
+  
+  .features-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+/* Mobile landscape and small tablets */
+@media (max-width: 768px) {
+  .logout-button {
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.9rem;
+  }
+  
+  .home-main {
+    padding: 1rem;
+    padding-top: 3.5rem;
+  }
+  
+  .home-title {
+    font-size: 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .home-description {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .feature-card {
+    padding: 1.25rem;
+  }
+  
+  .feature-title {
+    font-size: 1.1rem;
+  }
+  
+  .feature-description {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logout-button {
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  
+  .home-main {
+    padding: 0.75rem;
+    padding-top: 3rem;
+  }
+  
+  .home-title {
+    font-size: 1.5rem;
+  }
+  
+  .home-description {
+    font-size: 0.95rem;
+  }
+  
+  .feature-card {
+    padding: 1rem;
+  }
+  
+  .feature-title {
+    font-size: 1rem;
+  }
+  
+  .feature-description {
+    font-size: 0.85rem;
+  }
+}

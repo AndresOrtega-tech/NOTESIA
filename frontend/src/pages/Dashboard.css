@@ -1,17 +1,17 @@
 /* Dashboard Styles */
 .dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--primary-green);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Header */
 .dashboard-header {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-overlay);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid var(--border-color);
   padding: 1rem 2rem;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-medium);
 }
 
 .header-content {
@@ -31,22 +31,18 @@
 .dashboard-title {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--primary-green);
   margin: 0;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .welcome-text {
   font-size: 0.9rem;
-  color: #718096;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .logout-btn {
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  background: var(--tertiary-green);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -54,12 +50,13 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  box-shadow: var(--shadow-light);
 }
 
 .logout-btn:hover {
+  background: var(--accent-green);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+  box-shadow: var(--shadow-medium);
 }
 
 /* Main Content */
@@ -101,22 +98,52 @@
   box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
 }
 
-.search-input {
-  width: 100%;
+.search-container {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
   max-width: 400px;
-  padding: 0.875rem 1.25rem;
-  border: 2px solid #e2e8f0;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   font-size: 1rem;
+  background: var(--bg-overlay);
+  color: var(--text-primary);
   transition: all 0.3s ease;
-  background: white;
-  margin: 0 auto;
+  backdrop-filter: blur(10px);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #4facfe;
-  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+  border-color: var(--secondary-green);
+  box-shadow: 0 0 0 3px rgba(80, 149, 114, 0.1);
+}
+
+.search-filter {
+  padding: 0.875rem 0.75rem;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 0.9rem;
+  background: var(--bg-overlay);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  min-width: 80px;
+}
+
+.search-filter:focus {
+  outline: none;
+  border-color: var(--secondary-green);
+  box-shadow: 0 0 0 3px rgba(80, 149, 114, 0.1);
+}
+
+.search-filter:hover {
+  border-color: var(--secondary-green);
 }
 
 .status-filter {
@@ -171,7 +198,7 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--primary-green);
   color: white;
 }
 
@@ -222,6 +249,23 @@
 }
 
 /* Responsive Design */
+/* Tablet styles */
+@media (max-width: 1024px) {
+  .dashboard-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .dashboard-main {
+    padding: 1.5rem;
+  }
+  
+  .dashboard-controls {
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+}
+
+/* Mobile landscape and small tablets */
 @media (max-width: 768px) {
   .dashboard-header {
     padding: 1rem;
@@ -230,7 +274,17 @@
   .header-content {
     flex-direction: column;
     gap: 1rem;
-    text-align: center;
+    align-items: flex-start;
+  }
+  
+  .header-left {
+    width: 100%;
+  }
+  
+  .logout-btn {
+    align-self: flex-end;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
   }
   
   .dashboard-main {
@@ -247,16 +301,41 @@
     order: -1;
   }
   
-  .search-input {
-    max-width: 100%;
+  .search-container {
+    max-width: none;
+    flex-direction: column;
+  }
+  
+  .search-input,
+  .search-filter {
+    width: 100%;
+  }
+  
+  .search-filter {
+    min-width: auto;
+  }
+  
+  .create-note-btn {
+    width: 100%;
+    justify-content: center;
   }
   
   .dashboard-title {
     font-size: 1.5rem;
   }
   
+  .welcome-text {
+    font-size: 0.85rem;
+  }
+  
   .modal-overlay {
     padding: 0.5rem;
+  }
+  
+  .modal-content {
+    width: 95%;
+    max-width: none;
+    margin: 1rem;
   }
 }
 
@@ -275,6 +354,7 @@
   
   .create-note-btn,
   .search-input,
+  .search-filter,
   .status-filter {
     padding: 0.75rem 1rem;
     font-size: 0.9rem;

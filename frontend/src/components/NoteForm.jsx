@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth.jsx';
+import { NoteIcon, CheckIcon, ArchiveIcon } from './icons';
 import './NoteForm.css';
 
 const NoteForm = ({ note, onSubmit, onCancel, title }) => {
@@ -175,9 +177,9 @@ const NoteForm = ({ note, onSubmit, onCancel, title }) => {
             className="form-select"
             disabled={loading}
           >
-            <option value="draft">📝 Borrador</option>
-            <option value="published">✅ Publicada</option>
-            <option value="archived">📦 Archivada</option>
+            <option value="draft"><NoteIcon size={16} /> Borrador</option>
+            <option value="published"><CheckIcon size={16} /> Publicada</option>
+            <option value="archived"><ArchiveIcon size={16} /> Archivada</option>
           </select>
         </div>
 

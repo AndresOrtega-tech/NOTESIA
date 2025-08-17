@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { notesAPI } from '../utils/api';
 import NotesList from '../components/NotesList';
 import NoteForm from '../components/NoteForm';
+import { NoteIcon, WarningIcon } from '../components/icons';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -20,6 +21,7 @@ const Dashboard = () => {
   }, [showCreateForm]);
   const [editingNote, setEditingNote] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchFilter, setSearchFilter] = useState('all'); // 'all', 'title', 'content'
   const [statusFilter, setStatusFilter] = useState('all');
 
   // Cargar notas al montar el componente
@@ -99,8 +101,27 @@ const Dashboard = () => {
   };
 
   const filteredNotes = notes.filter(note => {
-    const matchesSearch = (note.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (note.content || '').toLowerCase().includes(searchTerm.toLowerCase());
+    let matchesSearch = true;
+    
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase();
+      const titleMatch = (note.title || '').toLowerCase().includes(searchLower);
+      const contentMatch = (note.content || '').toLowerCase().includes(searchLower);
+      
+      switch (searchFilter) {
+        case 'title':
+          matchesSearch = titleMatch;
+          break;
+        case 'content':
+          matchesSearch = contentMatch;
+          break;
+        case 'all':
+        default:
+          matchesSearch = titleMatch || contentMatch;
+          break;
+      }
+    }
+    
     const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -120,7 +141,7 @@ const Dashboard = () => {
       <header className="dashboard-header">
         <div className="header-content">
           <div className="header-left">
-            <h1 className="dashboard-title">📝 NOTESIA</h1>
+            <h1 className="dashboard-title"><NoteIcon size={32} className="inline-icon" />NOTESIA</h1>
             <p className="welcome-text">Bienvenido, {user?.full_name || user?.email}</p>
           </div>
           <div className="header-right">
@@ -152,13 +173,25 @@ const Dashboard = () => {
           </div>
           
           <div className="controls-center">
-            <input
-              type="text"
-              placeholder="Buscar notas..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder={`Buscar ${searchFilter === 'title' ? 'por título' : searchFilter === 'content' ? 'por contenido' : 'notas'}...`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+              <select 
+                value={searchFilter} 
+                onChange={(e) => setSearchFilter(e.target.value)}
+                className="search-filter"
+                title="Tipo de búsqueda"
+              >
+                <option value="all">Todo</option>
+                <option value="title">Título</option>
+                <option value="content">Contenido</option>
+              </select>
+            </div>
           </div>
 
           <div className="controls-right">
@@ -178,7 +211,7 @@ const Dashboard = () => {
         {/* Error Message */}
         {error && (
           <div className="error-message">
-            ⚠️ {error}
+            <WarningIcon size={16} className="inline-icon" />{error}
             <button 
               className="retry-btn"
               onClick={loadNotes}

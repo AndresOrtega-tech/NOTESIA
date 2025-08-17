@@ -1,4 +1,5 @@
 import React from 'react';
+import { NoteIcon, EditIcon, DeleteIcon, CheckIcon, ArchiveIcon } from './icons';
 import './NotesList.css';
 
 const NotesList = ({ notes, onEdit, onDelete, loading }) => {
@@ -14,7 +15,7 @@ const NotesList = ({ notes, onEdit, onDelete, loading }) => {
   if (!notes || notes.length === 0) {
     return (
       <div className="notes-empty">
-        <div className="empty-icon">📝</div>
+        <div className="empty-icon"><NoteIcon size={64} color="var(--light-green)" /></div>
         <h3>No hay notas aún</h3>
         <p>¡Crea tu primera nota para comenzar!</p>
       </div>
@@ -71,7 +72,11 @@ const NotesList = ({ notes, onEdit, onDelete, loading }) => {
             {/* Header de la nota */}
             <div className="note-header">
               <div className="note-status">
-                <span className="status-icon">{getStatusIcon(note.status)}</span>
+                <span className="status-icon">
+                  {note.status === 'draft' && <NoteIcon size={16} />}
+                  {note.status === 'published' && <CheckIcon size={16} />}
+                  {note.status === 'archived' && <ArchiveIcon size={16} />}
+                </span>
                 <span className="status-text">{getStatusText(note.status)}</span>
               </div>
               <div className="note-actions">
@@ -80,14 +85,14 @@ const NotesList = ({ notes, onEdit, onDelete, loading }) => {
                   onClick={() => onEdit(note)}
                   title="Editar nota"
                 >
-                  ✏️
+                  <EditIcon size={16} />
                 </button>
                 <button
                   className="action-btn delete-btn"
                   onClick={() => onDelete(note.id)}
                   title="Eliminar nota"
                 >
-                  🗑️
+                  <DeleteIcon size={16} />
                 </button>
               </div>
             </div>
