@@ -26,8 +26,21 @@ const apiRequest = async (endpoint, options = {}) => {
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      
+      // Manejar JWT expirado
+      if (response.status === 401 || 
+          (errorData.detail && errorData.detail.includes('JWT expired')) ||
+          (errorData.message && errorData.message.includes('JWT expired'))) {
+        // Limpiar datos de autenticación
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userEmail');
+        
+        // Redirigir al login
+        window.location.href = '/login';
+        return;
+      }
 
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      throw new Error(errorData.detail || `Error interno: ${JSON.stringify(errorData)}` || `HTTP error! status: ${response.status}`);
     }
     
     // Para respuestas DELETE exitosas, el backend puede no devolver contenido
@@ -184,4 +197,77 @@ export const notesAPI = {
   },
 };
 
-export default { authAPI, notesAPI };
+// Servicios de IA
+export const aiAPI = {
+  // Chat general con IA
+  chat: async (token, prompt, context = null) => {
+    return apiRequest('/ai/chat', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt,
+        context
+      }),
+    });
+  },
+
+  // Resumir una nota específica
+  summarizeNote: async (token, noteId) => {
+    return apiRequest('/ai/summarize', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        note_id: noteId
+      }),
+    });
+  },
+
+  // Mejorar una nota específica
+  enhanceNote: async (token, noteId, enhancementType = 'improve') => {
+    return apiRequest('/ai/enhance', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        note_id: noteId,
+        enhancement_type: enhancementType
+      }),
+    });
+  },
+
+  // Generar nota desde prompt
+  generateFromPrompt: async (token, prompt, title = null) => {
+    return apiRequest('/ai/generate', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt,
+        title
+      }),
+    });
+  },
+
+  // Analizar todas las notas del usuario
+  analyzeNotes: async (token) => {
+    return apiRequest('/ai/analyze-notes', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+    });
+  },
+};
+
+export default { authAPI, notesAPI, aiAPI };

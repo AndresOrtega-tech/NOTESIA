@@ -64,6 +64,8 @@ const NotesList = ({ notes, onEdit, onDelete, loading }) => {
     return content.substring(0, maxLength) + '...';
   };
 
+
+
   return (
     <div className="notes-list">
       <div className="container-fluid">

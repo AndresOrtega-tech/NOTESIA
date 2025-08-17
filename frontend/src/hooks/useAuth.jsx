@@ -38,7 +38,7 @@ const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.error('Error verificando autenticación:', error);
-        // Si hay error, limpiar datos
+        // Si hay error (posiblemente token expirado), limpiar datos
         logout();
       } finally {
         setIsLoading(false);

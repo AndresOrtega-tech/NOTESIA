@@ -147,6 +147,19 @@
   color: var(--tertiary-green);
 }
 
+.ai-btn {
+  color: var(--accent-green);
+  font-size: 1rem;
+}
+
+.summarize-btn {
+  color: var(--light-green);
+}
+
+.enhance-btn {
+  color: var(--secondary-green);
+}
+
 .edit-btn:hover {
   background: rgba(80, 149, 114, 0.1);
   color: var(--secondary-green);
@@ -159,6 +172,29 @@
   color: #dc3545;
   transform: scale(1.1);
   opacity: 1;
+}
+
+.ai-btn:hover:not(:disabled) {
+  background: rgba(85, 142, 99, 0.1);
+  color: var(--accent-green);
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.ai-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.summarize-btn:hover:not(:disabled) {
+  background: rgba(91, 131, 77, 0.1);
+  color: var(--light-green);
+}
+
+.enhance-btn:hover:not(:disabled) {
+  background: rgba(80, 149, 114, 0.1);
+  color: var(--secondary-green);
 }
 
 /* Note Content */

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { notesAPI } from '../utils/api';
+import { notesAPI, aiAPI } from '../utils/api';
 import NotesList from '../components/NotesList';
 import NoteForm from '../components/NoteForm';
-import { NoteIcon, WarningIcon } from '../components/icons/index.js';
+import AIChat from '../components/AIChat';
+
+import AIAnalysisModal from '../components/AIAnalysisModal';
+import { NoteIcon, WarningIcon, RobotIcon } from '../components/icons/index.js';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -14,6 +17,11 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
+
+  const [showAIAnalysis, setShowAIAnalysis] = useState(false);
+  const [analysisData, setAnalysisData] = useState(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
   
   // Debug: Log cuando cambia showCreateForm
   useEffect(() => {
@@ -89,6 +97,38 @@ const Dashboard = () => {
     }
   };
 
+  // Función para actualizar una nota después de operaciones de IA
+  const handleNoteUpdate = (updatedNote) => {
+    setNotes(prevNotes => 
+      prevNotes.map(note => 
+        note.id === updatedNote.id ? updatedNote : note
+      )
+    );
+  };
+
+  // Función para manejar cuando se crea una nueva nota desde IA
+  // Función para analizar notas con IA
+  const handleAnalyzeNotes = async () => {
+    if (notes.length === 0) {
+      setError('No hay notas para analizar');
+      return;
+    }
+
+    setAnalysisLoading(true);
+    setError('');
+
+    try {
+      const response = await aiAPI.analyzeNotes(token);
+      setAnalysisData(response);
+      setShowAIAnalysis(true);
+    } catch (err) {
+      console.error('Error analyzing notes:', err);
+      setError('Error al analizar las notas: ' + (err.message || 'Error desconocido'));
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -100,7 +140,7 @@ const Dashboard = () => {
     }
   };
 
-  const filteredNotes = notes.filter(note => {
+  const filteredNotes = (notes || []).filter(note => {
     let matchesSearch = true;
     
     if (searchTerm.trim()) {
@@ -169,7 +209,37 @@ const Dashboard = () => {
                     setShowCreateForm(true);
                   }}
                 >
-                  ➕ Nueva Nota
+                  <NoteIcon size={16} className="inline-icon" />Crear Nueva Nota
+                </button>
+              </div>
+
+              <div className="col-12 col-md-6 col-lg-3">
+                <button 
+                  className="btn btn-secondary w-100 ai-chat-btn"
+                  onClick={() => setShowAIChat(true)}
+                  title="Abrir chat con IA"
+                >
+                  <RobotIcon size={16} className="inline-icon" />Chat con IA
+                </button>
+              </div>
+
+              <div className="col-12 col-md-6 col-lg-3">
+                <button 
+                  className="btn btn-info w-100 ai-analysis-btn"
+                  onClick={handleAnalyzeNotes}
+                  title="Analizar todas las notas"
+                  disabled={analysisLoading || notes.length === 0}
+                >
+                  {analysisLoading ? (
+                    <>
+                      <div className="spinner-small"></div>
+                      Analizando...
+                    </>
+                  ) : (
+                    <>
+                      <RobotIcon size={16} className="inline-icon" />Analizar Notas
+                    </>
+                  )}
                 </button>
               </div>
               
@@ -259,10 +329,25 @@ const Dashboard = () => {
             notes={filteredNotes}
             onEdit={setEditingNote}
             onDelete={handleDeleteNote}
+            onNoteUpdate={handleNoteUpdate}
             loading={loading}
           />
         </div>
       </main>
+
+      {/* AI Chat */}
+      <AIChat
+        isOpen={showAIChat}
+        onClose={() => setShowAIChat(false)}
+      />
+
+      {/* AI Analysis Modal */}
+      <AIAnalysisModal
+        isOpen={showAIAnalysis}
+        onClose={() => setShowAIAnalysis(false)}
+        analysisData={analysisData}
+        loading={analysisLoading}
+      />
     </div>
   );
 };
