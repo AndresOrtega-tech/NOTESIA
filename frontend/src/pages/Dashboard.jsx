@@ -47,7 +47,7 @@ const Dashboard = () => {
 
   const handleCreateNote = async (noteData) => {
     try {
-      const newNote = await notesAPI.createNote(noteData, token);
+      const newNote = await notesAPI.createNote(token, noteData);
       setNotes(prevNotes => [newNote, ...prevNotes]);
       setShowCreateForm(false);
       setError('');
@@ -79,7 +79,7 @@ const Dashboard = () => {
     }
 
     try {
-      await notesAPI.deleteNote(noteId, token);
+      await notesAPI.deleteNote(token, noteId);
       setNotes(notes.filter(note => note.id !== noteId));
     } catch (err) {
       setError('Error al eliminar la nota: ' + (err.message || 'Error desconocido'));

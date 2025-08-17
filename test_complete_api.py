@@ -4,7 +4,7 @@ import time
 from typing import Optional
 
 # Configuración
-BASE_URL = "http://localhost:8000"
+BASE_URL = "https://notesia.vercel.app/"
 API_BASE = f"{BASE_URL}/api"
 
 class NotesiaAPITester:
@@ -328,11 +328,15 @@ class NotesiaAPITester:
         
         response = self.make_request("DELETE", f"/notes/{self.test_note_id}")
         
-        if response and response.status_code == 200:
+        if response and response.status_code == 204:
             self.log_test("Eliminar Nota", "PASS", f"Nota eliminada: {self.test_note_id}")
             return True
         else:
-            error_detail = response.json().get("detail", "Error desconocido") if response else "Sin respuesta"
+            # Manejar respuestas con y sin contenido JSON
+            try:
+                error_detail = response.json().get("detail", "Error desconocido") if response else "Sin respuesta"
+            except:
+                error_detail = f"Status: {response.status_code}" if response else "Sin respuesta"
             self.log_test("Eliminar Nota", "FAIL", f"Error: {error_detail}")
             return False
     
