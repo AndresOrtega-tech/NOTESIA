@@ -1,13 +1,38 @@
 /* Notes List Styles */
 .notes-list {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
+/* Bootstrap grid will handle the layout, but we keep this for fallback */
 .notes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
   padding: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure consistent full width on all screens */
+.notes-list {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.notes-grid {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.note-card {
+  box-sizing: border-box !important;
 }
 
 /* Note Card */
@@ -110,18 +135,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.edit-btn {
+  color: var(--secondary-green);
+}
+
+.delete-btn {
+  color: var(--tertiary-green);
 }
 
 .edit-btn:hover {
   background: rgba(80, 149, 114, 0.1);
   color: var(--secondary-green);
   transform: scale(1.1);
+  opacity: 1;
 }
 
 .delete-btn:hover {
-  background: rgba(73, 127, 113, 0.1);
-  color: var(--tertiary-green);
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
   transform: scale(1.1);
+  opacity: 1;
 }
 
 /* Note Content */
@@ -369,6 +406,16 @@
   
   .empty-icon {
     font-size: 3rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .notes-list,
+  .notes-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0;
+    padding: 0;
   }
 }
 

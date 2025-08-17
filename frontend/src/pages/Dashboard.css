@@ -61,18 +61,47 @@
 
 /* Main Content */
 .dashboard-main {
-  width: 90%;
-  max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 2rem;
 }
 
+/* Ensure consistent full width on all screens */
+.dashboard-main {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+}
+
+.dashboard-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+}
+
+.dashboard-controls {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+}
+
+.container-fluid {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.row {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 /* Controls */
 .dashboard-controls {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 1rem;
-  align-items: center;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   padding: 1.5rem;
@@ -135,6 +164,12 @@
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   min-width: 80px;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
 }
 
 .search-filter:focus {
@@ -149,19 +184,31 @@
 
 .status-filter {
   padding: 0.875rem 1.25rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   font-size: 1rem;
-  background: white;
+  background: var(--bg-overlay);
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
   min-width: 120px;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
 }
 
 .status-filter:focus {
   outline: none;
-  border-color: #4facfe;
-  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+  border-color: var(--secondary-green);
+  box-shadow: 0 0 0 3px rgba(80, 149, 114, 0.1);
+}
+
+.status-filter:hover {
+  border-color: var(--secondary-green);
 }
 
 /* Error Message */
@@ -247,6 +294,8 @@
 /* Dashboard Content */
 .dashboard-content {
   position: relative;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Responsive Design */
@@ -257,6 +306,7 @@
   }
   
   .dashboard-main {
+    width: 100% !important;
     padding: 1.5rem;
   }
   
@@ -289,6 +339,7 @@
   }
   
   .dashboard-main {
+    width: 100% !important;
     padding: 1rem;
   }
   
@@ -342,7 +393,7 @@
 
 @media (max-width: 500px) {
   .dashboard-main {
-    width: 100%;
+    width: 100% !important;
     padding: 1rem;
   }
   

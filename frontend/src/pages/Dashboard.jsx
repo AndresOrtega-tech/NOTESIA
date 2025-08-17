@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { notesAPI } from '../utils/api';
 import NotesList from '../components/NotesList';
 import NoteForm from '../components/NoteForm';
-import { NoteIcon, WarningIcon } from '../components/icons';
+import { NoteIcon, WarningIcon } from '../components/icons/index.js';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -160,51 +160,58 @@ const Dashboard = () => {
       <main className="dashboard-main">
         {/* Controls */}
         <div className="dashboard-controls">
-          <div className="controls-left">
-            <button 
-              className="create-note-btn"
-              onClick={() => {
-        
-                setShowCreateForm(true);
-              }}
-            >
-              ➕ Nueva Nota
-            </button>
-          </div>
-          
-          <div className="controls-center">
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder={`Buscar ${searchFilter === 'title' ? 'por título' : searchFilter === 'content' ? 'por contenido' : 'notas'}...`}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
-              <select 
-                value={searchFilter} 
-                onChange={(e) => setSearchFilter(e.target.value)}
-                className="search-filter"
-                title="Tipo de búsqueda"
-              >
-                <option value="all">Todo</option>
-                <option value="title">Título</option>
-                <option value="content">Contenido</option>
-              </select>
-            </div>
-          </div>
+          <div className="container-fluid">
+            <div className="row g-3 align-items-center">
+              <div className="col-12 col-md-6 col-lg-3">
+                <button 
+                  className="btn btn-primary w-100 create-note-btn"
+                  onClick={() => {
+                    setShowCreateForm(true);
+                  }}
+                >
+                  ➕ Nueva Nota
+                </button>
+              </div>
+              
+              <div className="col-12 col-md-6 col-lg-6">
+                <div className="row g-2">
+                  <div className="col-8">
+                    <input
+                      type="text"
+                      placeholder={`Buscar ${searchFilter === 'title' ? 'por título' : searchFilter === 'content' ? 'por contenido' : 'notas'}...`}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="form-control search-input"
+                    />
+                  </div>
+                  <div className="col-4">
+                    <select 
+                      value={searchFilter} 
+                      onChange={(e) => setSearchFilter(e.target.value)}
+                      className="form-select search-filter"
+                      title="Tipo de búsqueda"
+                    >
+                      <option value="all">Todo</option>
+                      <option value="title">Título</option>
+                      <option value="content">Contenido</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
 
-          <div className="controls-right">
-            <select 
-              value={statusFilter} 
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="status-filter"
-            >
-              <option value="all">Todas</option>
-              <option value="draft">Borradores</option>
-              <option value="published">Publicadas</option>
-              <option value="archived">Archivadas</option>
-            </select>
+              <div className="col-12 col-lg-3">
+                <select 
+                  value={statusFilter} 
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="form-select status-filter w-100"
+                >
+                  <option value="all">Todas</option>
+                  <option value="draft">Borradores</option>
+                  <option value="published">Publicadas</option>
+                  <option value="archived">Archivadas</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
 
