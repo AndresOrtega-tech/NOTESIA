@@ -27,64 +27,127 @@ router = APIRouter(tags=["authentication"])
 async def register(user_data: UserCreate):
     """Registrar un nuevo usuario"""
     try:
-        # Usar el cliente supabase ya configurado
+    
         
-        # Verificar si el usuario ya existe
+        # Generar username si no se proporciona
+        if not user_data.username:
+            user_data.username = user_data.email.split('@')[0]
+    
+        
+        # Verificar si el usuario ya existe en la tabla users
         existing_user = supabase.table("users").select("*").eq("email", user_data.email).execute()
+    
+        
         if existing_user.data:
+    
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="El usuario ya existe"
+                detail="El email ya está registrado"
             )
         
-        # Crear nuevo usuario en Supabase Auth
+
+        
+        # Intentar hacer login para verificar si el usuario existe en Supabase Auth
         try:
-            auth_response = supabase.auth.sign_up({
+    
+            test_login = supabase.auth.sign_in_with_password({
                 "email": user_data.email,
                 "password": user_data.password
             })
-        except Exception as auth_error:
-            # Si el error es porque el usuario ya existe en Auth
-            if "User already registered" in str(auth_error) or "already been registered" in str(auth_error):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="El usuario ya existe"
-                )
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Error al crear usuario: {str(auth_error)}"
-                )
+
+            
+            if test_login.user:
+    
+                # El usuario existe en Auth pero no en la tabla users, vamos a sincronizarlo
+                user_record = {
+                    "id": test_login.user.id,
+                    "email": user_data.email,
+                    "full_name": user_data.full_name,
+                    "username": user_data.username,
+                    "password_hash": get_password_hash(user_data.password),
+                    "is_active": True
+                }
+                
+                supabase_admin = get_supabase_admin_client()
+                result = supabase_admin.table("users").insert(user_record).execute()
+                
+                if result.data:
+                    return {
+                        "message": "Usuario registrado exitosamente",
+                        "user_id": test_login.user.id
+                    }
+                else:
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="Error al sincronizar datos del usuario"
+                    )
+        except Exception as auth_check_error:
+            # Continuar con el proceso normal de registro
+
+            pass
         
-        if auth_response.user:
-            # Insertar datos adicionales en la tabla users usando cliente admin
-            user_record = {
-                "id": auth_response.user.id,
-                "email": user_data.email,
-                "full_name": user_data.full_name,
-                "username": user_data.username,
-                "password_hash": get_password_hash(user_data.password),
-                "is_active": True
-            }
-            
-            # Usar cliente admin para bypasear RLS
-            supabase_admin = get_supabase_admin_client()
-            result = supabase_admin.table("users").insert(user_record).execute()
-            
-            return {
-                "message": "Usuario registrado exitosamente",
-                "user_id": auth_response.user.id
-            }
-        else:
+        # Crear nuevo usuario en Supabase Auth
+
+        auth_response = supabase.auth.sign_up({
+            "email": user_data.email,
+            "password": user_data.password
+        })
+
+        
+        if not auth_response.user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error al crear usuario"
+                detail="Error al crear usuario en autenticación"
             )
-            
+        
+        # Insertar datos adicionales en la tabla users usando cliente admin
+        hashed_password = get_password_hash(user_data.password)
+        
+        user_record = {
+            "id": auth_response.user.id,
+            "email": user_data.email,
+            "full_name": user_data.full_name,
+            "username": user_data.username,
+            "password_hash": hashed_password,
+            "is_active": True
+        }
+        
+
+        # Usar cliente admin para bypasear RLS
+        try:
+            supabase_admin = get_supabase_admin_client()
+
+            result = supabase_admin.table("users").insert(user_record).execute()
+
+        except Exception as e:
+
+            raise e
+        
+        if not result.data:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error al guardar datos del usuario"
+            )
+        
+        return {
+            "message": "Usuario registrado exitosamente",
+            "user_id": auth_response.user.id
+        }
+        
+    except HTTPException:
+        # Re-lanzar HTTPExceptions sin modificar
+        raise
     except Exception as e:
+        # Manejar errores específicos de Supabase Auth
+        if "User already registered" in str(e) or "already registered" in str(e).lower():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El email ya está registrado. Si crees que esto es un error, contacta al administrador."
+            )
+        
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error interno: {str(e)}"
+            detail="Error interno del servidor"
         )
 
 @router.post("/login", response_model=Token)

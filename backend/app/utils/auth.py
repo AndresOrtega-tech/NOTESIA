@@ -1,11 +1,9 @@
+import hashlib
+import secrets
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from app.config import settings
-
-# Configuración para el hash de contraseñas
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Configuración JWT
 SECRET_KEY = settings.secret_key
@@ -23,7 +21,14 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         bool: True si las contraseñas coinciden, False en caso contrario
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        # Separar el salt del hash
+        salt, stored_hash = hashed_password.split('$')
+        # Generar hash con el salt
+        password_hash = hashlib.pbkdf2_hmac('sha256', plain_password.encode(), salt.encode(), 100000)
+        return password_hash.hex() == stored_hash
+    except:
+        return False
 
 def get_password_hash(password: str) -> str:
     """
@@ -35,7 +40,12 @@ def get_password_hash(password: str) -> str:
     Returns:
         str: Hash de la contraseña
     """
-    return pwd_context.hash(password)
+    # Generar un salt aleatorio
+    salt = secrets.token_hex(16)
+    # Generar hash usando PBKDF2
+    password_hash = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000)
+    # Retornar salt$hash
+    return f"{salt}${password_hash.hex()}"
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """

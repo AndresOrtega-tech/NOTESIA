@@ -81,7 +81,7 @@ class NotesiaAPITester:
     def test_user_registration(self):
         """Test de registro de usuario"""
         test_user = {
-            "email": f"test_{int(time.time())}@notesia.com",
+            "email": f"test_{int(time.time())}@notesiaaaa.com",
             "password": "TestPassword123!",
             "full_name": "Usuario de Prueba",
             "username": f"testuser_{int(time.time())}"

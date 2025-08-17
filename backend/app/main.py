@@ -1,6 +1,8 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationError
 import uvicorn
 
 # Importar routers
@@ -29,6 +31,30 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Manejador de errores de validación
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+
+    return JSONResponse(
+        status_code=400,
+        content={
+            "detail": "There was an error parsing the body",
+            "errors": exc.errors() if settings.debug else None
+        }
+    )
+
+# Manejador de errores de Pydantic
+@app.exception_handler(ValidationError)
+async def pydantic_exception_handler(request: Request, exc: ValidationError):
+
+    return JSONResponse(
+        status_code=400,
+        content={
+            "detail": "There was an error parsing the body",
+            "errors": exc.errors() if settings.debug else None
+        }
+    )
 
 # Manejador de errores global
 @app.exception_handler(Exception)

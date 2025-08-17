@@ -1,0 +1,230 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { notesAPI } from '../utils/api';
+import NotesList from '../components/NotesList';
+import NoteForm from '../components/NoteForm';
+import './Dashboard.css';
+
+const Dashboard = () => {
+  const { user, token, logout } = useAuth();
+  const navigate = useNavigate();
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  
+  // Debug: Log cuando cambia showCreateForm
+  useEffect(() => {
+  
+  }, [showCreateForm]);
+  const [editingNote, setEditingNote] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  // Cargar notas al montar el componente
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    loadNotes();
+  }, [token, navigate]);
+
+  const loadNotes = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const notesData = await notesAPI.getNotes(token);
+      setNotes(notesData);
+    } catch (err) {
+      setError('Error al cargar las notas: ' + (err.message || 'Error desconocido'));
+      console.error('Error loading notes:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateNote = async (noteData) => {
+    try {
+      const newNote = await notesAPI.createNote(noteData, token);
+      setNotes(prevNotes => [newNote, ...prevNotes]);
+      setShowCreateForm(false);
+      setError('');
+    } catch (err) {
+      setError('Error al crear la nota: ' + (err.message || 'Error desconocido'));
+      console.error('Error creating note:', err);
+    }
+  };
+
+  const handleUpdateNote = async (noteId, noteData) => {
+    try {
+      const updatedNote = await notesAPI.updateNote(token, noteId, noteData);
+      setNotes(prevNotes => 
+        prevNotes.map(note => 
+          note.id === noteId ? updatedNote : note
+        )
+      );
+      setEditingNote(null);
+      setError('');
+    } catch (err) {
+      setError('Error al actualizar la nota: ' + (err.message || 'Error desconocido'));
+      console.error('Error updating note:', err);
+    }
+  };
+
+  const handleDeleteNote = async (noteId) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar esta nota?')) {
+      return;
+    }
+
+    try {
+      await notesAPI.deleteNote(noteId, token);
+      setNotes(notes.filter(note => note.id !== noteId));
+    } catch (err) {
+      setError('Error al eliminar la nota: ' + (err.message || 'Error desconocido'));
+      console.error('Error deleting note:', err);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (err) {
+      console.error('Error during logout:', err);
+      // Forzar navegación incluso si hay error
+      navigate('/login');
+    }
+  };
+
+  const filteredNotes = notes.filter(note => {
+    const matchesSearch = (note.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (note.content || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  if (loading) {
+    return (
+      <div className="dashboard-loading">
+        <div className="loading-spinner"></div>
+        <p>Cargando notas...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="dashboard">
+      {/* Header */}
+      <header className="dashboard-header">
+        <div className="header-content">
+          <div className="header-left">
+            <h1 className="dashboard-title">📝 NOTESIA</h1>
+            <p className="welcome-text">Bienvenido, {user?.full_name || user?.email}</p>
+          </div>
+          <div className="header-right">
+            <button 
+              className="logout-btn"
+              onClick={handleLogout}
+              title="Cerrar sesión"
+            >
+              🚪 Salir
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="dashboard-main">
+        {/* Controls */}
+        <div className="dashboard-controls">
+          <div className="controls-left">
+            <button 
+              className="create-note-btn"
+              onClick={() => {
+        
+                setShowCreateForm(true);
+              }}
+            >
+              ➕ Nueva Nota
+            </button>
+          </div>
+          
+          <div className="controls-center">
+            <input
+              type="text"
+              placeholder="Buscar notas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+
+          <div className="controls-right">
+            <select 
+              value={statusFilter} 
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="status-filter"
+            >
+              <option value="all">Todas</option>
+              <option value="draft">Borradores</option>
+              <option value="published">Publicadas</option>
+              <option value="archived">Archivadas</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="error-message">
+            ⚠️ {error}
+            <button 
+              className="retry-btn"
+              onClick={loadNotes}
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
+
+        {/* Notes Content */}
+        <div className="dashboard-content">
+          {showCreateForm && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <NoteForm
+                  onSubmit={handleCreateNote}
+                  onCancel={() => setShowCreateForm(false)}
+                  title="Crear Nueva Nota"
+                />
+              </div>
+            </div>
+          )}
+
+          {editingNote && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <NoteForm
+                  note={editingNote}
+                  onSubmit={(noteData) => handleUpdateNote(editingNote.id, noteData)}
+                  onCancel={() => setEditingNote(null)}
+                  title="Editar Nota"
+                />
+              </div>
+            </div>
+          )}
+
+          <NotesList
+            notes={filteredNotes}
+            onEdit={setEditingNote}
+            onDelete={handleDeleteNote}
+            loading={loading}
+          />
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Dashboard;

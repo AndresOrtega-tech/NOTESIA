@@ -1,13 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends, status, Query
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from fastapi.security import HTTPBearer
 from typing import List, Optional
 from datetime import datetime
 from supabase import create_client, Client
-
-from app.config import settings
-from app.models.note import NoteCreate, NoteUpdate, Note, NoteWithAI, NoteStatus
-from app.utils.auth import verify_token, get_user_id_from_token
+from app.models.note import Note, NoteCreate, NoteUpdate, NoteStatus
 from app.routers.auth import get_current_user_dependency
+from app.config import settings
 
 # Configuración
 security = HTTPBearer()
@@ -20,32 +18,45 @@ router = APIRouter(tags=["notes"])
 # Usar la dependencia de autenticación centralizada
 get_current_user = get_current_user_dependency
 
+# Endpoints de debug removidos - usando endpoint principal
+
 @router.post("/", response_model=Note)
 async def create_note(note_data: NoteCreate, user_id: str = Depends(get_current_user)):
+    return await create_note_internal(note_data, user_id)
+
+async def create_note_internal(note_data: NoteCreate, user_id: str):
     """Crear una nueva nota"""
     try:
+
         
         note_record = {
             "title": note_data.title,
             "content": note_data.content,
             "user_id": user_id,
-            "status": note_data.status.value if note_data.status else NoteStatus.DRAFT.value,
+            "status": note_data.status.value if note_data.status else NoteStatus.draft.value,
             "tags": note_data.tags or [],
             "created_at": datetime.utcnow().isoformat(),
             "updated_at": datetime.utcnow().isoformat()
         }
         
+
+        
         result = supabase.table("notes").insert(note_record).execute()
         
+
+        
         if result.data:
+
             return Note(**result.data[0])
         else:
+
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Error al crear la nota"
             )
             
     except Exception as e:
+
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error interno: {str(e)}"
@@ -68,10 +79,12 @@ async def get_notes(
         # Aplicar filtros
         if status_filter:
             query = query.eq("status", status_filter.value)
+
         
         if search:
             # Buscar en título y contenido
             query = query.or_(f"title.ilike.%{search}%,content.ilike.%{search}%")
+
         
         # Ordenar por fecha de actualización (más recientes primero)
         query = query.order("updated_at", desc=True)
@@ -84,6 +97,7 @@ async def get_notes(
         return [Note(**note) for note in result.data]
         
     except Exception as e:
+
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error interno: {str(e)}"
@@ -97,17 +111,22 @@ async def get_note(note_id: str, user_id: str = Depends(get_current_user)):
         
         result = supabase.table("notes").select("*").eq("id", note_id).eq("user_id", user_id).execute()
         
+
+        
         if not result.data:
+
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Nota no encontrada"
             )
         
+
         return Note(**result.data[0])
         
     except HTTPException:
         raise
     except Exception as e:
+
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error interno: {str(e)}"
@@ -122,7 +141,10 @@ async def update_note(note_id: str, note_data: NoteUpdate, user_id: str = Depend
         # Verificar que la nota existe y pertenece al usuario
         existing_note = supabase.table("notes").select("*").eq("id", note_id).eq("user_id", user_id).execute()
         
+
+        
         if not existing_note.data:
+
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Nota no encontrada"
@@ -140,11 +162,17 @@ async def update_note(note_id: str, note_data: NoteUpdate, user_id: str = Depend
         if note_data.tags is not None:
             update_data["tags"] = note_data.tags
         
+
+        
         result = supabase.table("notes").update(update_data).eq("id", note_id).execute()
         
+
+        
         if result.data:
+
             return Note(**result.data[0])
         else:
+
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Error al actualizar la nota"
@@ -167,7 +195,10 @@ async def delete_note(note_id: str, user_id: str = Depends(get_current_user)):
         # Verificar que la nota existe y pertenece al usuario
         existing_note = supabase.table("notes").select("*").eq("id", note_id).eq("user_id", user_id).execute()
         
+
+        
         if not existing_note.data:
+
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Nota no encontrada"
@@ -175,7 +206,9 @@ async def delete_note(note_id: str, user_id: str = Depends(get_current_user)):
         
         result = supabase.table("notes").delete().eq("id", note_id).execute()
         
-        return {"message": "Nota eliminada exitosamente"}
+
+        
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
         
     except HTTPException:
         raise

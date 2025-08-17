@@ -1,12 +1,14 @@
-// Configuración base de la API
+// Configuración base de la API - UPDATED FOR DEBUG
 // Cambiar entre desarrollo local y producción
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? 'https://notesia.vercel.app/api'
-  : 'https://notesia.vercel.app/api'; // Usando Vercel para desarrollo también
+  : 'http://localhost:8000/api'; // Usando backend local para desarrollo
 
 // Función helper para hacer peticiones HTTP
 const apiRequest = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
+  
+
   
   const config = {
     headers: {
@@ -17,14 +19,26 @@ const apiRequest = async (endpoint, options = {}) => {
   };
 
   try {
+
     const response = await fetch(url, config);
+    
+
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+
       throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
     }
     
-    return await response.json();
+    // Para respuestas DELETE exitosas, el backend puede no devolver contenido
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
+
+      return null;
+    }
+    
+    const responseData = await response.json();
+
+    return responseData;
   } catch (error) {
     console.error('API Request Error:', error);
     throw error;
@@ -40,8 +54,8 @@ export const authAPI = {
       body: JSON.stringify({
         email: userData.email,
         password: userData.password,
-        first_name: userData.firstName,
-        last_name: userData.lastName
+        full_name: userData.full_name || `${userData.firstName} ${userData.lastName}`,
+        username: userData.username || userData.email.split('@')[0] // Usar la parte antes del @ como username
       }),
     });
   },
@@ -82,7 +96,7 @@ export const authAPI = {
 export const notesAPI = {
   // Obtener todas las notas del usuario
   getNotes: async (token) => {
-    return apiRequest('/notes/', {
+    return apiRequest('/notes', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -92,34 +106,81 @@ export const notesAPI = {
 
   // Crear una nueva nota
   createNote: async (token, noteData) => {
+  
+    
+    // Mapear estados del frontend al backend
+    const statusMapping = {
+      'draft': 'draft',
+      'published': 'published', // Mantener published como published
+      'active': 'published',    // El frontend usa 'active' pero el backend espera 'published'
+      'archived': 'archived',
+      'deleted': 'archived'     // Mapear deleted a archived
+    };
+    
+    const processedData = {
+      title: noteData.title || '',
+      content: noteData.content || '',
+      status: statusMapping[noteData.status] || 'draft',
+      tags: Array.isArray(noteData.tags) ? noteData.tags : []
+    };
+    
+    
+    
     return apiRequest('/notes/', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(noteData),
+      body: JSON.stringify(processedData),
     });
   },
 
   // Actualizar una nota
   updateNote: async (token, noteId, noteData) => {
+    
+    
+    // Mapear estados del frontend al backend
+    const statusMapping = {
+      'draft': 'draft',
+      'published': 'published',  // Mapeo directo para published
+      'active': 'published',     // El frontend usa 'active' pero el backend espera 'published'
+      'archived': 'archived',
+      'deleted': 'archived'      // Mapear deleted a archived
+    };
+    
+    const processedData = {
+      title: noteData.title || '',
+      content: noteData.content || '',
+      status: statusMapping[noteData.status] || 'draft',
+      tags: Array.isArray(noteData.tags) ? noteData.tags : []
+    };
+    
+  
+    
     return apiRequest(`/notes/${noteId}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(noteData),
+      body: JSON.stringify(processedData),
     });
   },
 
   // Eliminar una nota
   deleteNote: async (token, noteId) => {
-    return apiRequest(`/notes/${noteId}`, {
+    
+    
+    const result = await apiRequest(`/notes/${noteId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,
       },
     });
+    
+  
+    return result;
   },
 };
 

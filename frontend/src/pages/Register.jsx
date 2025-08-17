@@ -66,7 +66,14 @@ const Register = () => {
         navigate('/login');
       }, 2000);
     } else {
-      setError(result.error || 'Error al registrar usuario. Inténtalo de nuevo.');
+      // Manejar errores específicos
+      let errorMessage = result.error || 'Error al registrar usuario. Inténtalo de nuevo.';
+      
+      if (result.error && result.error.includes('El email ya está registrado')) {
+        errorMessage = '⚠️ Este correo electrónico ya está registrado. Si ya tienes una cuenta, puedes iniciar sesión.';
+      }
+      
+      setError(errorMessage);
     }
   };
 
@@ -246,7 +253,21 @@ const Register = () => {
               marginBottom: '1rem',
               textAlign: 'center'
             }}>
-              {error}
+              {error.includes('ya está registrado') ? (
+                <div>
+                  {error}
+                  <br />
+                  <Link to="/login" style={{
+                    color: '#007bff',
+                    textDecoration: 'underline',
+                    fontWeight: 'bold'
+                  }}>
+                    Ir al Login
+                  </Link>
+                </div>
+              ) : (
+                error
+              )}
             </div>
           )}
 
