@@ -53,8 +53,8 @@ git push origin main
 
 ## URLs de Producción
 
-- **Backend**: `https://notesia.vercel.app/api`
-- **Frontend**: Se configurará automáticamente al desplegar
+- **Backend**: `https://notesia.vercel.app`
+- **Frontend**: `https://notesia-gray.vercel.app`
 
 ## Verificación del Despliegue
 

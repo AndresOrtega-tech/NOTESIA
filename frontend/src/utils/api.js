@@ -1,7 +1,7 @@
 // Configuración base de la API - UPDATED FOR DEBUG
 // Cambiar entre desarrollo local y producción
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://notesia.vercel.app'
+  ? 'https://notesia.vercel.app/api'
   : 'http://localhost:8000/api'; // Usando backend local para desarrollo
 
 // Función helper para hacer peticiones HTTP
