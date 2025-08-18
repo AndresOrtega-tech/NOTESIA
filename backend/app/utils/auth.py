@@ -98,20 +98,3 @@ def get_user_id_from_token(token: str) -> Optional[str]:
     if payload:
         return payload.get("sub")
     return None
-
-def is_token_expired(token: str) -> bool:
-    """
-    Verifica si un token JWT ha expirado.
-    
-    Args:
-        token: Token JWT
-        
-    Returns:
-        bool: True si el token ha expirado, False en caso contrario
-    """
-    payload = verify_token(token)
-    if payload:
-        exp = payload.get("exp")
-        if exp:
-            return datetime.utcnow() > datetime.fromtimestamp(exp)
-    return True

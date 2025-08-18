@@ -1,13 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import List, Optional
+from fastapi.security import HTTPBearer
+from typing import Optional
 import google.generativeai as genai
 from pydantic import BaseModel
 from supabase import create_client, Client
 
 from app.config import settings
 from app.models.note import Note, NoteWithAI
-from app.utils.auth import get_user_id_from_token
 from app.routers.auth import get_current_user_dependency
 
 # Configuración

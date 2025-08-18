@@ -217,25 +217,3 @@ async def delete_note(note_id: str, user_id: str = Depends(get_current_user)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error interno: {str(e)}"
         )
-
-@router.get("/tags/list")
-async def get_user_tags(user_id: str = Depends(get_current_user)):
-    """Obtener todas las etiquetas únicas del usuario"""
-    try:
-
-        
-        result = supabase.table("notes").select("tags").eq("user_id", user_id).execute()
-        
-        # Extraer todas las etiquetas únicas
-        all_tags = set()
-        for note in result.data:
-            if note.get("tags"):
-                all_tags.update(note["tags"])
-        
-        return {"tags": sorted(list(all_tags))}
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error interno: {str(e)}"
-        )
