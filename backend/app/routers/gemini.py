@@ -42,14 +42,26 @@ class GenerateFromPrompt(BaseModel):
 
 @router.post("/chat")
 async def chat_with_ai(ai_prompt: AIPrompt, user_id: str = Depends(get_current_user)):
-    """Chat general con IA"""
+    """Chat general con IA especializado en tomar notas"""
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         
-        # Construir el prompt con contexto si se proporciona
-        full_prompt = ai_prompt.prompt
+        # Prompt del sistema para definir el rol del asistente
+        system_prompt = """Eres un asistente especializado en tomar notas y organizar información. Tu función principal es ayudar a los usuarios a:
+
+1. Resumir textos largos en puntos clave y conceptos principales
+2. Generar ideas y estructurar información de manera clara
+3. Extraer información importante y relevante de textos
+4. Organizar y estructurar notas de forma eficiente
+5. Ayudar a pensar en ideas y conceptos relacionados
+
+Siempre proporciona respuestas claras, bien estructuradas y enfocadas en la productividad y organización de información. Usa formato markdown cuando sea apropiado para mejorar la legibilidad."""
+        
+        # Construir el prompt completo
         if ai_prompt.context:
-            full_prompt = f"Contexto: {ai_prompt.context}\n\nPregunta: {ai_prompt.prompt}"
+            full_prompt = f"{system_prompt}\n\nContexto: {ai_prompt.context}\n\nPregunta del usuario: {ai_prompt.prompt}"
+        else:
+            full_prompt = f"{system_prompt}\n\nPregunta del usuario: {ai_prompt.prompt}"
         
         response = model.generate_content(full_prompt)
         
